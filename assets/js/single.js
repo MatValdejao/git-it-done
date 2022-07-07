@@ -1,5 +1,6 @@
 var issueContanerEl = document.getElementById("issues-container");
-
+var limitWarmingEl = document.getElementById("limit-warning");
+    
 var getRepoIssues = function (repoName) {
     var apiUrl = "https://api.github.com/repos/" + repoName + "/issues?direction=asc";
 
@@ -7,12 +8,29 @@ var getRepoIssues = function (repoName) {
         if (response.ok) {
             response.json().then(function (data) {
                 displayIssues(data);
+
+                // check if api has paginated issues
+                if (response.headers.get("Link")) {
+                    displayWarning(data);
+                }
             })
         }
         else {
             alert("There was a problem with your request!");
         }
     })
+}
+
+var displayWarning = function (repo) {
+    limitWarmingEl.textContent = "To see more than 30 issues, visit ";
+
+    var linkEl = document.createElement("a");
+    linkEl.textContent = "See More Issues on Github.com"
+    linkEl.setAttribute("href", "https://github.com/" + repo + "/issues");
+    linkEl.setAttribute("target", "_blank");
+
+    // append to limit warning
+    limitWarmingEl.appendChild(linkEl);
 }
 
 var displayIssues = function (issues) {
